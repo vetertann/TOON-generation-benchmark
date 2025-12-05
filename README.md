@@ -1,7 +1,7 @@
 ---
 ## Token-Oriented Object Notation vs JSON: a benchmark of plain and constrained decoding generation"
 
-Token-Oriented Object Notation [https://github.com/toon-format](https://github.com/toon-format) is a compact, human-readable encoding of the JSON data model that minimizes tokens and makes structure easy for models to follow. It's intended for LLM input as a drop-in, lossless representation of your existing JSON.
+[Token-Oriented Object Notation](https://github.com/toon-format) is a compact, human-readable encoding of the JSON data model that minimizes tokens and makes structure easy for models to follow. It's intended for LLM input as a drop-in, lossless representation of your existing JSON.
 
 While TOON is primarily designed for input, its token efficiency makes it a candidate for LLM output in specific high-volume scenarios. This benchmark compares three generation strategies across 21 models.
 
