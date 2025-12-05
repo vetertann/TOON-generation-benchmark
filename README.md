@@ -3,11 +3,32 @@
 
 Token-Oriented Object Notation [https://github.com/toon-format](https://github.com/toon-format) is a compact, human-readable encoding of the JSON data model that minimizes tokens and makes structure easy for models to follow. It's intended for LLM input as a drop-in, lossless representation of your existing JSON.
 
-While TOON is primarily designed for input, its token efficiency makes it a candidate for LLM output in specific high-volume scenarios. This benchmark compares three generation strategies across 21 models:
+While TOON is primarily designed for input, its token efficiency makes it a candidate for LLM output in specific high-volume scenarios. This benchmark compares three generation strategies across 21 models.
 
-1.  **JSON (J)**: Plain generation (Pydantic validation).
-2.  **JSON Structured Output (JSO)**: Constrained decoding (`response_format="json_object"` / grammar enforcement).
-3.  **TOON (T)**: One-shot in-context learning generation.
+### Benchmark design
+
+**Gold standard:** Created from Pydantic models and serialized to `*.gold.json` (canonical JSON) and `*.gold.toon` (via `@toon-format/cli`).
+
+**Test cases:**
+1.  **users**: Simple tabular structure.
+2.  **order**: Nested structure with array.
+3.  **company**: Department and employee hierarchy (deep nesting).
+4.  **invoice**: Items and totals.
+
+**Test tracks:**
+*   **JSON track (J):** Plain JSON generation with Pydantic validation.
+*   **JSON-SO track (JSO):** Structured output (`response_format="json_object"`) with constrained decoding. The inference engine compiles constraints (schema/grammar) into a state machine (e.g., xgrammar) to mask illegal tokens during generation, enforcing valid syntax.
+*   **TOON track (T):** TOON output followed by CLI decoding. Prompts used **universal examples** (not custom-tailored to the specific schema) to ensure a fair comparison with JSON.
+
+**Sampling & evaluation:**
+*   **Parameters:** Temperature 0 for deterministic output.
+*   **Runs:** 10 iterations per test case per model (21 models via [Nebius API](https://tokenfactory.nebius.com/)).
+*   **Process:**
+    1.  Model generates output (J, JSO, or T).
+    2.  (TOON only) CLI decodes to JSON. CLI errors trigger a **repair cycle**.
+    3.  Validation via Pydantic & Data canonicalization.
+    4.  Comparison with Gold Standard.
+    5.  **Repair cycle:** If validation/comparison fails, the previous output and error text are inserted into the prompt (up to 3 attempts).
 
 ### Key findings
 
@@ -17,14 +38,14 @@ While TOON is primarily designed for input, its token efficiency makes it a cand
 
 ### Results by data topology
 
-Performance varies significantly based on how well the data aligns with TOON's "uniform array" design.
+Performance varies significantly based on how well the data aligns with TOON's design (e.g., uniform arrays vs. deep recursive nesting).
 
-| Case | Structure | Best format | Observation |
-| :--- | :--- | :--- | :--- |
-| **Users** | Flat tabular | **JSO** (tokens) / **TOON** (acc) | TOON reached **90.5%** 1-shot accuracy. JSO used fewer tokens (556 vs 840) due to TOON's prompt overhead on small tasks. |
-| **Order** | Nested + uniform array | **Mixed** | TOON (74.3%) is competitive with JSON (81.9%), proving effective for standard business documents. |
-| **Invoice** | Items & totals | **JSO** | TOON struggled initially (0% 1-shot) requiring repair loops, while JSO enforced strict schemas effectively (95.2%). |
-| **Company** | Deep/recursive | **TOON** (final efficiency) | **Anomaly:** TOON failed 1-shot (0%) but repair loops made it the *most* accurate final result (48.6%) with the *lowest* token usage (2567). |
+| Case | J (1-S) | J (Fin) | J (Tok) | JSO (1-S) | JSO (Fin) | JSO (Tok) | T (1-S) | T (Fin) | T (Tok) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **users** | 94.8% | 94.8% | 1078 | 92.9% | **100%** | 556 | **90.5%** | 90.5% | 840 |
+| **order** | 81.9% | 81.9% | 1746 | 78.6% | 83.3% | 1255 | 74.3% | 78.6% | 1585 |
+| **company** | 18.6% | 43.8% | 3575 | **21.9%** | **48.1%** | 2592 | 0.0% | 48.6% | 2567 |
+| **invoice** | 90.0% | 90.0% | 1723 | 87.6% | **95.2%** | 1349 | 0.0% | 52.4% | 3626 |
 
 ### Full results by model
 
