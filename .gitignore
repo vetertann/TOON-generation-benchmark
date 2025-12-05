@@ -1,0 +1,21 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Local envs
+.venv/
+.env
+
+# Node
+node_modules/
+
+# Generated CSV outputs
+_eval_runs.csv
+_eval_results_by_*.csv
+
+eval_runs.csv
+eval_results_by_case.csv
+eval_results_by_model.csv
