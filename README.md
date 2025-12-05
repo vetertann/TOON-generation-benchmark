@@ -19,7 +19,7 @@ While TOON is primarily designed for input, its token efficiency makes it a cand
 
 Performance varies significantly based on how well the data aligns with TOON's "uniform array" design.
 
-| Case | Structure | Best format | Insight |
+| Case | Structure | Best format | Observation |
 | :--- | :--- | :--- | :--- |
 | **Users** | Flat tabular | **JSO** (tokens) / **TOON** (acc) | TOON reached **90.5%** 1-shot accuracy. JSO used fewer tokens (556 vs 840) due to TOON's prompt overhead on small tasks. |
 | **Order** | Nested + uniform array | **Mixed** | TOON (74.3%) is competitive with JSON (81.9%), proving effective for standard business documents. |
