@@ -103,7 +103,7 @@ In cases like `Qwen3-235B-A22B-Inst`, TOON consumed significantly more tokens (~
 This repository contains two main scripts:
 
 - **`generate.py`** – builds the gold-standard reference outputs used for evaluation.  
-- **`eval_simple.py`** – runs the full benchmark across all models and decoding strategies.
+- **`eval.py`** – runs the full benchmark across all models and decoding strategies.
 
 Before running the benchmark, install dependencies and create the gold files.
 
@@ -149,7 +149,7 @@ export LLM_API_KEY="your_nebius_api_key"
 ### **5. Run the full benchmark**
 
 ```bash
-python eval_simple.py
+python eval.py
 ```
 
 This will:
@@ -169,7 +169,7 @@ eval_runs.csv
 
 ```
 ├── generate.py          # Defines schemas, builds gold objects, writes gold/*.json + *.toon
-├── eval_simple.py       # Full benchmark runner
+├── eval.py       # Full benchmark runner
 ├── gold/                # Auto-generated canonical reference data
 │   ├── *.gold.json
 │   ├── *.gold.toon
