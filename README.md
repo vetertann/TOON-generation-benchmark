@@ -94,3 +94,87 @@ In cases like `Qwen3-235B-A22B-Inst`, TOON consumed significantly more tokens (~
 1.  **Aligned data streams:** Use TOON generation for **SQL dumps, logs, and transactional documents**. The token savings on high-volume, uniform data outweigh the prompt overhead.
 2.  **Avoid deep nesting:** For deeply nested or recursive state trees (like DOMs), stick to **JSON** or **JSO**. TOON's indentation tracking is less robust for these structures in one-shot generation.
 3.  **Repair loops:** TOON generation benefits disproportionately from repair loops (feeding errors back to context), often correcting format issues that initial constrained decoding cannot fix.
+
+<details>
+<summary><strong>Installation & Usage (click to expand)</strong></summary>
+
+<br>
+
+This repository contains two main scripts:
+
+- **`generate.py`** – builds the gold-standard reference outputs used for evaluation.  
+- **`eval_simple.py`** – runs the full benchmark across all models and decoding strategies.
+
+Before running the benchmark, install dependencies and create the gold files.
+
+### **1. Install Python dependencies**
+
+```bash
+pip install -r requirements.txt
+```
+
+### **2. Install the TOON CLI (required for encoding/decoding)**
+
+```bash
+npm install -g @toon-format/cli
+```
+
+Alternatively, you can rely on `npx` without a global install.
+
+### **3. Generate the gold reference outputs**
+
+This step must be run **once**, or whenever you modify the schemas in `generate.py`:
+
+```bash
+python generate.py
+```
+
+This will create:
+
+```
+gold/users.gold.json       gold/users.gold.toon
+gold/order.gold.json       gold/order.gold.toon
+gold/company.gold.json     gold/company.gold.toon
+gold/invoice.gold.json     gold/invoice.gold.toon
+```
+
+### **4. Set your model API key**
+
+The benchmark uses the Nebius Token Factory API. Set:
+
+```bash
+export LLM_API_KEY="your_nebius_api_key"
+```
+
+### **5. Run the full benchmark**
+
+```bash
+python eval_simple.py
+```
+
+This will:
+
+- Run all test cases for 21 models  
+- Perform JSON, JSON-SO, and TOON generation  
+- Decode TOON outputs via CLI  
+- Validate against the gold standard  
+- Apply repair loops  
+- Write per-run statistics to:
+
+```
+eval_runs.csv
+```
+
+### **Repository structure**
+
+```
+├── generate.py          # Defines schemas, builds gold objects, writes gold/*.json + *.toon
+├── eval_simple.py       # Full benchmark runner
+├── gold/                # Auto-generated canonical reference data
+│   ├── *.gold.json
+│   ├── *.gold.toon
+├── requirements.txt
+└── README.md
+```
+
+</details>
